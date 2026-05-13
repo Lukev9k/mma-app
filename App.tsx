@@ -13,11 +13,28 @@ export function Header({ title }: HeaderProps) {
   )
 }
 
+interface FeatureCardProps {
+  title:string
+}
+
+export function FeatureCard({title}: FeatureCardProps) {
+  return (
+    <View>
+      <Text>{title}</Text>
+    </View>
+  )
+}
+
 export default function App() {
   return (
     <View style={styles.container}>
       <Header title = "Kinsou MMA"/>
-      <Text>Open up App.tsx to start working on your app!</Text>
+      <FeatureCard title="Manage Students" />
+      <FeatureCard title="Calendar" />
+      <FeatureCard title="Equipment Drop" />
+      <FeatureCard title="Tournaments" />
+      <FeatureCard title="Drills Library" />
+      <FeatureCard title="Sparring Partners" />
       <StatusBar style="auto" />
     </View>
   );
