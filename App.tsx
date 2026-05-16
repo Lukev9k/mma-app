@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { StudentListScreen } from './screens/StudentListScreen';
 
 interface HeaderProps {
   title: string
@@ -40,6 +40,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Header title = "Kinsou MMA" subtitle = "Welcome back, Coach"/>
+      <StudentListScreen />
       <View style={styles.row}>
         <FeatureCard title="Manage Students" />
         <FeatureCard title="Calendar" />
