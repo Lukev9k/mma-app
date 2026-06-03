@@ -88,3 +88,174 @@ CREATE TABLE drills (
   date timestamp,
   created_at timestamp DEFAULT now()
 );
+
+-- RLS Policies
+
+-- SELECT policies
+CREATE POLICY "gym members can view their own gym"
+ON gyms FOR SELECT
+USING (id = (SELECT gym_id FROM profiles WHERE id = auth.uid()));
+
+CREATE POLICY "gym members can view profiles in their gym"
+ON profiles FOR SELECT
+USING (gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid()));
+
+CREATE POLICY "accessing the tournaments"
+ON tournaments FOR SELECT
+USING (gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid()));
+
+CREATE POLICY "accessing the calendar"
+ON calendar_events FOR SELECT
+USING (gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid()));
+
+CREATE POLICY "accessing gym equipment"
+ON gym_equipment FOR SELECT
+USING (gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid()));
+
+CREATE POLICY "accessing equipment orders"
+ON equipment_orders FOR SELECT
+USING (gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid()));
+
+CREATE POLICY "accessing drills"
+ON drills FOR SELECT
+USING (gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid()));
+
+CREATE POLICY "accessing tournament enrollments"
+ON tournament_enrollments FOR SELECT
+USING (student_id = auth.uid());
+
+-- INSERT policies
+CREATE POLICY "users can insert their own profile"
+ON profiles FOR INSERT
+WITH CHECK (id = auth.uid());
+
+CREATE POLICY "students can enroll in tournaments"
+ON tournament_enrollments FOR INSERT
+WITH CHECK (student_id = auth.uid());
+
+CREATE POLICY "students can order equipments"
+ON equipment_orders FOR INSERT
+WITH CHECK (student_id = auth.uid());
+
+CREATE POLICY "admins can insert tournaments"
+ON tournaments FOR INSERT
+WITH CHECK (
+  gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid())
+  AND
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
+
+CREATE POLICY "admins can insert calendar events"
+ON calendar_events FOR INSERT
+WITH CHECK (
+  gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid())
+  AND
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
+
+CREATE POLICY "admins can add gym equipments"
+ON gym_equipment FOR INSERT
+WITH CHECK (
+  gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid())
+  AND
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
+
+CREATE POLICY "admins can add drills taught"
+ON drills FOR INSERT
+WITH CHECK (
+  gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid())
+  AND
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
+
+-- UPDATE policies
+CREATE POLICY "users can update their own profile"
+ON profiles FOR UPDATE
+USING (id = auth.uid())
+WITH CHECK (id = auth.uid());
+
+CREATE POLICY "admins can update tournaments"
+ON tournaments FOR UPDATE
+USING (gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid()))
+WITH CHECK (
+  gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid())
+  AND
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
+
+CREATE POLICY "admins can update calendar events"
+ON calendar_events FOR UPDATE
+USING (gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid()))
+WITH CHECK (
+  gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid())
+  AND
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
+
+CREATE POLICY "admins can update gym equipments"
+ON gym_equipment FOR UPDATE
+USING (gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid()))
+WITH CHECK (
+  gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid())
+  AND
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
+
+CREATE POLICY "admins can update drills"
+ON drills FOR UPDATE
+USING (gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid()))
+WITH CHECK (
+  gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid())
+  AND
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
+
+-- DELETE policies
+CREATE POLICY "users can delete their orders"
+ON equipment_orders FOR DELETE
+USING (student_id = auth.uid());
+
+CREATE POLICY "users can delete their enrollments"
+ON tournament_enrollments FOR DELETE
+USING (student_id = auth.uid());
+
+CREATE POLICY "admins can delete tournaments"
+ON tournaments FOR DELETE
+USING (
+  gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid())
+  AND
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
+
+CREATE POLICY "admins can delete calendar events"
+ON calendar_events FOR DELETE
+USING (
+  gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid())
+  AND
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
+
+CREATE POLICY "admins can delete gym equipments"
+ON gym_equipment FOR DELETE
+USING (
+  gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid())
+  AND
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
+
+CREATE POLICY "admins can delete drills"
+ON drills FOR DELETE
+USING (
+  gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid())
+  AND
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
+
+CREATE POLICY "admins can delete profiles"
+ON profiles FOR DELETE
+USING (
+  gym_id = (SELECT gym_id FROM profiles WHERE id = auth.uid())
+  AND
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
