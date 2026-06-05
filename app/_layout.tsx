@@ -1,12 +1,28 @@
-import { Tabs } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Slot } from 'expo-router';
+import { supabase } from '../lib/supabase/client';
+import { View } from 'react-native';
+import LoginScreen from './login';
 
-export default function Layout() {
-  return (
-    <Tabs>
-      <Tabs.Screen name="index" options={{ title: 'Home' }} />
-      <Tabs.Screen name="students" options={{ title: 'Students' }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
-      <Tabs.Screen name="sparring" options={{ title: 'Sparring' }} />
-    </Tabs>
-  );
+export default function RootLayout() {
+  const [loading, setLoading] = useState(true)
+  const [authenticated, setAuthenticated] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthenticated(!!session)
+      setLoading(false)
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthenticated(!!session)
+    })
+
+    return () => listener.subscription.unsubscribe()
+  }, [])
+
+  if (loading) return <View style={{ flex: 1, backgroundColor: '#1a1a2e' }} />
+  if (!authenticated) return <LoginScreen />
+
+  return <Slot />
 }
