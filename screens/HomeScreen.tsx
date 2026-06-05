@@ -1,4 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
+import {supabase} from "../lib/supabase/client";
+
+
 
 interface HeaderProps {
   title: string
@@ -35,6 +39,13 @@ export function FeatureCard({title}: FeatureCardProps) {
 }
 
 export default function HomeScreen() {
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data, error } = await supabase.from('gyms').select('*')
+      console.log(data, error)
+    }
+    fetchData()
+  }, [])
   return (
     <View style={styles.container}>
       <Header title = "Kinsou MMA" subtitle = "Welcome back, Coach"/>

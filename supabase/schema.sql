@@ -259,3 +259,22 @@ USING (
   AND
   (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
 );
+
+-- Helper functions
+CREATE OR REPLACE FUNCTION get_my_gym_id()
+RETURNS uuid
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  SELECT gym_id FROM profiles WHERE id = auth.uid() LIMIT 1;
+$$;
+
+-- Permissions
+GRANT SELECT ON public.gyms TO anon, authenticated;
+GRANT SELECT ON public.profiles TO anon, authenticated;
+GRANT SELECT ON public.tournaments TO anon, authenticated;
+GRANT SELECT ON public.tournament_enrollments TO anon, authenticated;
+GRANT SELECT ON public.calendar_events TO anon, authenticated;
+GRANT SELECT ON public.gym_equipment TO anon, authenticated;
+GRANT SELECT ON public.equipment_orders TO anon, authenticated;
+GRANT SELECT ON public.drills TO anon, authenticated;
