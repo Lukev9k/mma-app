@@ -1,4 +1,5 @@
-import { Text , ScrollView } from 'react-native';
+import { Text , ScrollView, TouchableOpacity } from 'react-native';
+import { supabase } from '../lib/supabase/client';
 
 interface Tournament {
     name: string
@@ -41,6 +42,9 @@ export function ProfileScreen() {
             <Text>{profile.weight} </Text>
             <Text>{profile.subscriptionEndDate} </Text>
             <Text>{profile.tournaments.length === 0 ? 'No tournaments yet' : ''}</Text>
+            <TouchableOpacity onPress={() => supabase.auth.signOut()}>
+            <Text>Sign Out</Text>
+            </TouchableOpacity>
         </ScrollView>
     )
 
