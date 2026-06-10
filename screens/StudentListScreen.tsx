@@ -1,45 +1,58 @@
-import {View , Text , FlatList , TouchableOpacity} from 'react-native';
-import { useState, useEffect } from 'react';
+import {View, Text, FlatList} from 'react-native';
+import {useState, useEffect} from 'react';
+import {getProfile, getGymStudents} from '../lib/supabase/profiles';
+import {supabase} from '../lib/supabase/client';
 
 interface Student {
     id: string
     name: string
-    age: number
-    weightClass: string
-    paid: boolean
-  }
+    weight_class: string
+    subscription_end_date: string
+}
 
+interface Profile {
+    id: string
+    role: string
+    gym_id: string
+}
 
 export function StudentListScreen() {
     const [students, setStudents] = useState<Student[]>([])
     const [isLoading, setIsLoading] = useState(true)
-    const [showWarning, setShowWarning] = useState(false)
+    const [profile, setProfile] = useState<Profile | null>(null)
+    const [role, setRole] = useState<string | null>(null)
+
     useEffect(() => {
-        const loadStudents: Student[] = [
-          { id: '1', name: 'Lukev', age: 25, weightClass: 'Middleweight', paid: true },
-          { id: '2', name: 'Krishna', age: 20, weightClass: 'Lightweight', paid: false },
-          { id: '3', name: 'Arjun', age: 22, weightClass: 'Welterweight', paid: true },
-          { id: '4', name: 'Meera', age: 24, weightClass: 'Strawweight', paid: true },
-        ]
-        setStudents(loadStudents)
-        setIsLoading(false)
-      }, [])
-      if (isLoading) {
-        return <Text>Loading...</Text>
-      }
+        async function loadData() {
+            const {data: {user}} = await supabase.auth.getUser()
+            const profileData = await getProfile(user!.id)
+            setProfile(profileData)
+            setRole(profileData.role)
+
+            if (profileData.role === 'admin') {
+                const studentsData = await getGymStudents(profileData.gym_id)
+                setStudents(studentsData ?? [])
+            }
+            setIsLoading(false)
+        }
+        loadData()
+    }, [])
+
+    if (isLoading) return <Text>Loading...</Text>
+
     return (
         <View>
-        <TouchableOpacity onPress={() => setShowWarning(!showWarning)}>
-        <Text>Show Expiring Subscriptions</Text>
-        </TouchableOpacity>
-        {showWarning && <Text>⚠️ Krishna's subscription ends this week</Text>}
-        <FlatList
-        data={students}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-            <Text>{`${item.name} | ${item.age} | ${item.paid ? 'Paid' : 'Unpaid'}`}</Text>
-        )}
-        />
+            {role === 'admin' ? (
+                <FlatList
+                    data={students}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({item}) => (
+                        <Text>{item.name} | {item.weight_class} | {item.subscription_end_date}</Text>
+                    )}
+                />
+            ) : (
+                <Text>Your profile info here</Text>
+            )}
         </View>
     )
 }
