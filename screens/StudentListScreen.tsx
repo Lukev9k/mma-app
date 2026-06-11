@@ -14,6 +14,10 @@ interface Profile {
     id: string
     role: string
     gym_id: string
+    name: string
+    age: number
+    weight_class: string
+    experience: string
 }
 
 export function StudentListScreen() {
@@ -51,7 +55,10 @@ export function StudentListScreen() {
                     )}
                 />
             ) : (
+                <View>
                 <Text>Your profile info here</Text>
+                <Text>{profile?.name} | {profile?.age} | {profile?.weight_class} | {profile?.experience}</Text>
+                </View>
             )}
         </View>
     )
